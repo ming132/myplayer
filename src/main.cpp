@@ -1,22 +1,10 @@
-<<<<<<< HEAD
-#include "mainwindow.h"
-
-#include <QApplication>
-
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
-=======
 #include "qtheaders.h"
 
 #include "MainWindow.h"
 #include "qtstyles.h"
 #include "appdef.h"
 #include "confile.h"
-#include<iostream>
+
 IniParser* g_confile = NULL;
 char g_exec_path[256] = {0};
 char g_exec_dir[256] = {0};
@@ -92,9 +80,9 @@ static int load_confile() {
     else {
         strncpy(g_log_file, str.c_str(), sizeof(g_log_file));
     }
-    hlog_set_file(g_log_file);
+    hlog_set_file(g_log_file);//设置日志文件路径
     // loglevel
-    str = g_confile->GetValue("loglevel");
+    str = g_confile->GetValue("loglevel");//设置日志等级
     if (!str.empty()) {
         hlog_set_level_by_str(str.c_str());
     }
@@ -121,18 +109,19 @@ static int load_confile() {
 
 int main(int argc, char *argv[]) {
     load_confile();
-    qInstallMessageHandler(qLogHandler);
+
+    qInstallMessageHandler(qLogHandler);//安装自定义消息处理函数，这是的消息指的是QT库内部的消息，包括调试信息、告警信息和错误信息。
     qInfo("-------------------app start----------------------------------");
     QApplication app(argc, argv);
     app.setApplicationName(APP_NAME);
 
-    string str = g_confile->GetValue("skin", "ui");
+    string str = g_confile->GetValue("skin", "ui");//设置皮肤颜色，使用到了qss
     loadSkin(str.empty() ? DEFAULT_SKIN : str.c_str());
 
     str = g_confile->GetValue("palette", "ui");
     setPalette(str.empty() ? DEFAULT_PALETTE_COLOR : strtoul(str.c_str(), NULL, 16));
 
-    str = g_confile->GetValue("language", "ui");
+    str = g_confile->GetValue("language", "ui");//设置语言
     loadLang(str.empty() ? DEFAULT_LANGUAGE : str.c_str());
 
     setFont(g_confile->Get<int>("fontsize", "ui", DEFAULT_FONT_SIZE));
@@ -140,7 +129,7 @@ int main(int argc, char *argv[]) {
     // NOTE: replace with image.qrc
     // rcloader->loadIcon();
 
-    MainWindow::instance();
+    MainWindow::instance(); //单例模式
     g_mainwnd->window_state = (MainWindow::window_state_e)(g_confile->Get<int>("main_window_state", "ui"));
     switch (g_mainwnd->window_state) {
     case MainWindow::FULLSCREEN:
@@ -186,5 +175,4 @@ int main(int argc, char *argv[]) {
     SAFE_DELETE(g_confile);
 
     return exitcode;
->>>>>>> 97b24ee (这是一个播放器)
 }
