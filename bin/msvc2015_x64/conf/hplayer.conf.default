@@ -1,0 +1,81 @@
+# [root]
+
+logfile = logs/hplayer.log
+# loglevel = [VERBOSE,DEBUG,INFO,WARN,ERROR,FATAL,SILENT]
+loglevel = INFO
+log_remain_days = 3
+log_filesize = 16M
+
+[ui]
+skin = dark
+# 0xAARRGGBB
+palette = 0xFF132D48
+# language = [en, zh_CN, ...]
+language = 
+fontsize = 12
+
+main_window_width = 1280
+main_window_height = 800
+# [NORMAL=0, MINIMIZED=1, MAXMIZED=2, FULLSCREEN=3]
+main_window_state = 2
+# rect(x,y,w,h)
+main_window_rect = rect(0,34,3840,2066)
+
+menubar_visible = true
+toolbar_visible = true
+statusbar_visible = true
+lside_visible = false
+rside_visible = false
+
+mv_row = 2
+mv_col = 2
+mv_fullscreen = false
+
+draw_time = false
+draw_fps = false
+draw_resolution = false
+
+[video]
+frame_cache = 25
+# fps = 25
+
+# aspect_ratio = [x%, w:h, x:y, wxh]
+# aspect_ratio = 100% # FULL
+# aspect_ratio = 50% # PERCENT
+# aspect_ratio = w:h # ORIGINAL_RATIO
+# aspect_ratio = 4:3 # CUSTOM_RATIO
+# aspect_ratio = wxh # ORIGINAL_SIZE
+# aspect_ratio = 800x600 # CUSTOM_SIZE
+
+# renderer = [opengl, sdl, ...]
+renderer = opengl
+
+# SOFTWARE_DECODE         = 1,
+# HARDWARE_DECODE_QSV     = 2,
+# HARDWARE_DECODE_CUVID   = 3,
+decode_mode = 3
+
+# pix_fmt = [YUV, RGB]
+dst_pix_fmt = YUV
+
+# rtsp_transport = [tcp, udp]
+rtsp_transport = tcp
+
+# for network source retry
+retry_interval = 10000	# ms
+retry_maxcnt = -1	# -1 means INFINITE
+
+# for file source loop playback
+loop_playback = false
+
+[audio]
+# smft AV_SAMPLE_FMT_S16 AV_SAMPLE_FMT_S32
+dst_smft = AV_SAMPLE_FMT_S16
+frame_cache = 25
+
+[media]
+# 0:file 1:network 2:capture
+last_tab = 0
+last_file_source = C:/Users/ming_132/Videos/202312251841.mp4
+last_network_source = 
+ctrl = 1

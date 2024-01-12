@@ -1,0 +1,46 @@
+# cache
+*~
+*.bk
+*.bak
+*.old
+*.new
+
+# IDE
+.vs
+.vscode
+*.user
+
+tags
+cscope*
+
+# output
+*.o
+*.obj
+
+*.conf
+*.pid
+*.log
+*.db
+
+.qmake.stash
+tmp
+*debug
+*release
+*.pdb
+Makefile*
+
+# msvc
+*.VC.db
+*.VC.VC.opendb
+*.vcxproj.filters
+Debug
+Release
+
+# toolchains
+msvc2015_x86
+mingw32
+mingw64
+
+# mine
+3rd/include/opencv2
+3rd/include/qt5
