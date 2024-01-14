@@ -392,7 +392,7 @@ try_software_decode:
             open_audio();
     //准备工作干完了，设置一下线程解码一次要睡多久
     //HThread::setSleepPolicy(HThread::SLEEP_UNTIL, 1000 / fps);
-    HThread::setSleepPolicy(HThread::SLEEP_FOR, 0);
+    HThread::setSleepPolicy(HThread::SLEEP_FOR,0);
     return ret;
 }
 int HFFPlayer::open_audio(){
@@ -624,6 +624,12 @@ bool HFFPlayer::doFinish() {
 }
 
 void HFFPlayer::doTask() {
+    if(frame_buf.frame_stats.size>frame_buf.cache_num-10||aframe_buf.frame_stats.size>aframe_buf.cache_num-10)
+    {
+        //std::cout<<"frame_buf: "<<frame_buf.frame_stats.size<<" "<<aframe_buf.frame_stats.size<<" "<<frame_buf.cache_num<<" "<<aframe_buf.cache_num<<"\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000/fps));
+        return ;
+    }
     // loop until get a video frame
     AVCodecContext*  ctx;
     int type=-1;
@@ -731,11 +737,16 @@ void HFFPlayer::doTask() {
     // hlogi("ts=%lldms", hframe.ts);
     if(type==video_stream_index)
     push_frame(&hframe);
-    if(frame_buf.frame_stats.size>frame_buf.cache_num-10||aframe_buf.frame_stats.size>aframe_buf.cache_num-10)
+    if(get_frame_stats().size>frame_buf.cache_num/2||get_aframe_stats().size>aframe_buf.cache_num/2)
     {
-        //std::cout<<"frame_buf: "<<frame_buf.frame_stats.size<<" "<<aframe_buf.frame_stats.size<<" "<<frame_buf.cache_num<<" "<<aframe_buf.cache_num<<"\n";
-        HThread::setSleepPolicy(HThread::SLEEP_FOR, 2*1000 / fps);
+        HThread::setSleepPolicy(HThread::SLEEP_UNTIL, 2*1000 / fps);
+    }
+    else if(get_frame_stats().size>frame_buf.cache_num/4||get_aframe_stats().size>aframe_buf.cache_num/4)
+    {
+        HThread::setSleepPolicy(HThread::SLEEP_UNTIL, 1000 / fps);
     }
     else
-        HThread::setSleepPolicy(HThread::SLEEP_FOR,500/fps);
+    {
+        HThread::setSleepPolicy(HThread::SLEEP_UNTIL, 0);
+    }
 }

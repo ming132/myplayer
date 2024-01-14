@@ -32,6 +32,7 @@ public:
         remainder=chanels=sample_rate=type=bpp=ts=useridx=player_cnt=0;
         userdata=nullptr;
     }
+    virtual ~HAudioPlayer() {}
     int chanels;
     int sample_rate;
     int type;

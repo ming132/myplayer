@@ -45,6 +45,7 @@ int HFrameBuf::push(HFrame* pFrame) {
     frames.push_back(frame);
     frame_stats.push_ok_cnt++;
     frame_stats.size++;
+    //std::cout<<"vedio_frame_size_push: "<<frame_stats.size<<"\n";
     return ret;
 }
 int AFrameBuf::push(HAFrame* pFrame) {
@@ -64,11 +65,11 @@ int AFrameBuf::push(HAFrame* pFrame) {
         HAFrame& frame = frames.front();
         frames.pop_front();
         free(frame.buf.len);
+        frame_stats.size--;
         if (frame.userdata) {
             hlogd("free userdata");
             ::free(frame.userdata);
             frame.userdata = NULL;
-            frame_stats.size--;
         }
     }
 
@@ -90,6 +91,7 @@ int AFrameBuf::push(HAFrame* pFrame) {
     frames.push_back(frame);
     frame_stats.push_ok_cnt++;
     frame_stats.size++;
+    //std::cout<<"audio_frame_size_push: "<<frame_stats.size<<"\n";
     return ret;
 }
 int HFrameBuf::pop(HFrame* pFrame) {

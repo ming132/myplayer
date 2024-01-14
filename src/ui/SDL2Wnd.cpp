@@ -71,13 +71,16 @@ void SDL2Wnd::update() {
 }
 
 void SDL2Wnd::paintEvent(QPaintEvent* e) {
+    std::lock_guard<std::mutex> locker(mutex);
     calcFPS();
     SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
     SDL_RenderClear(sdlRenderer);
     if (last_frame.isNull()) {
         // NO VIDEO
+        //std::cout<<"NO VIDEO!!!\n";
     }
     else {
+        //std::cout<<"daodishishui!!!\n";
         if (sdlTexture == NULL ||
             tex_w != last_frame.w ||
             tex_h != last_frame.h ||

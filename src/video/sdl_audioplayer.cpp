@@ -1,8 +1,10 @@
 #include "sdl_audioplayer.h"
 #include "iostream"
+int SDL_audioplayer::Init=0;
 void SDL_audioplayer::update()
 {
-    if(Init==0)
+    //std::cout<<Init<<" "<<player_cnt<<"\n";
+    if(Init==0||device_init==0)
         return ;
     if(last_frame.buf.len==0)
         return ;
@@ -14,17 +16,16 @@ void SDL_audioplayer::update()
         spec.samples=last_frame.buf.len/8;
         spec.silence = 0;
         spec.callback=nullptr;
-        device_id=SDL_OpenAudioDevice(nullptr, false, &spec, nullptr, false);
-        //std::cout<<device_id<<"\n";
+        device_id=SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, false);
+        std::cout<<"device_id: "<<device_id<<" "<<SDL_GetError()<<"\n";
         if (device_id == 0) {
-            Init=0;
+            device_init=0;
             return ;
         }
-        Init=2;
         SDL_PauseAudioDevice(device_id, 0);
     }
-    //std::cout<<"cunhuo: "<<SDL_GetQueuedAudioSize(device_id)<<"\n";
-    //remainder=SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8);
+//    remainder=SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8);
+//    std::cout<<"cunhuo: "<<SDL_GetQueuedAudioSize(device_id)<<" "<<remainder<<"\n";
     SDL_QueueAudio(device_id,last_frame.buf.base,last_frame.buf.len/8);
     while(SDL_GetQueuedAudioSize(device_id)>=4*last_frame.buf.len/8)
         SDL_Delay(1);
@@ -34,10 +35,11 @@ void SDL_audioplayer::update()
 }
 int SDL_audioplayer::get_remainder()
 {
-    if(Init!=2)
-        return 0;
-    if(last_frame.buf.len==0)
-        return 0;
-    //    std::cout<<last_frame.duration<<" "<<SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8)<<"\n";
-    return SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8);
+//    if(Init!=2)
+//        return 0;
+//    if(last_frame.buf.len==0)
+//        return 0;
+//    //    std::cout<<last_frame.duration<<" "<<SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8)<<"\n";
+//    return SDL_GetQueuedAudioSize(device_id)/(last_frame.buf.len/8);
+    return 0;
 }

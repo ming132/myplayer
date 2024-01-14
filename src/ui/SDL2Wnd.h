@@ -30,6 +30,7 @@ protected:
     int     tex_bpp;
     int     tex_pitch;
     SDL_PixelFormatEnum     sdl_pix_fmt;
+    std::mutex         mutex;
 };
 
 #endif // SDL2_WND_H

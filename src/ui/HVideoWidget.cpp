@@ -53,6 +53,7 @@ HVideoWidget::HVideoWidget(QWidget *parent) : QFrame(parent)
     playerid = 0;
     status = STOP;
     pImpl_player = NULL;
+    audiownd=NULL;
     fps = g_confile->Get<int>("fps", "video");
     // aspect_ratio
     string str = g_confile->GetValue("aspect_ratio", "video");
@@ -133,8 +134,6 @@ HVideoWidget::HVideoWidget(QWidget *parent) : QFrame(parent)
     retry_maxcnt = g_confile->Get<int>("retry_maxcnt", "video", DEFAULT_RETRY_MAXCNT);
     last_retry_time = 0;
     retry_cnt = 0;
-    vts=ats=0;
-    hyper_para=1.0;
     initUI();
     initConnect();
 }
@@ -148,7 +147,6 @@ void HVideoWidget::initUI() {
     setFocusPolicy(Qt::ClickFocus);
 
     videownd = HVideoWndFactory::create(renderer_type, this);
-    audiownd = HAudioPlayerFactory::create(Audio_SDL);
     titlebar = new HVideoTitlebar(this);
     toolbar  = new HVideoToolbar(this);
     btnMedia = genPushButton(QPixmap(":/image/media_bk.png"), tr("Open media"));
@@ -276,7 +274,10 @@ void HVideoWidget::start() {
     }
 
     if (!pImpl_player) {
+        vts=ats=0;
+        hyper_para=1.0;
         pImpl_player = HVideoPlayerFactory::create(media.type);
+        audiownd = HAudioPlayerFactory::create(Audio_SDL);
         pImpl_player->set_media(media);
         pImpl_player->set_event_callback(hplayer_event_callback, this);
         title = media.src.c_str();
@@ -311,15 +312,14 @@ void HVideoWidget::stop() {
     if (pImpl_player) {
         pImpl_player->stop();
         SAFE_DELETE(pImpl_player);
+        audiownd->last_frame.buf.cleanup();
+        SAFE_DELETE(audiownd);
     }
-
     videownd->last_frame.buf.cleanup();
-    audiownd->last_frame.buf.cleanup();
-    videownd->update();
-    audiownd->player_cnt=0;
+    //videownd->update();
     last_retry_time = 0;
     retry_cnt = 0;
-
+    vts=ats=0;
     updateUI();
 }
 
@@ -448,9 +448,22 @@ void HVideoWidget::VPlayer()
             std::this_thread::yield();
         if (pImpl_player->pop_frame(&videownd->last_frame) == 0)
         {
+            if (toolbar->sldProgress->isVisible()) {
+                int progress = (videownd->last_frame.ts - pImpl_player->start_time) / 1000;
+                if (toolbar->sldProgress->value() != progress &&
+                    !toolbar->sldProgress->isSliderDown()) {
+                    toolbar->sldProgress->setValue(progress);
+                }
+            }
+            if(ats==0)
+            {
+                videownd->update();
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000/(fps ? fps : pImpl_player->fps)));
+                continue;
+            }
             vts=videownd->last_frame.ts;
             int diff = vts - ats;
-            //std::cout<<vts<<" "<<ats<<" "<<diff<<"\n";
+            //std::cout<<vts<<" "<<ats<<" "<<diff<<" "<<pImpl_player->get_frame_stats().size<<" "<<pImpl_player->get_aframe_stats().size<<"\n";
             if (diff >= 0)
             {
                 if (diff < 3000&&diff>50)
@@ -462,8 +475,9 @@ void HVideoWidget::VPlayer()
                 if ((-diff) <=1000/(fps ? fps : pImpl_player->fps)*2)
                     videownd->update();
             }
+            //videownd->last_frame.buf.cleanup();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 void HVideoWidget::APlayer()
